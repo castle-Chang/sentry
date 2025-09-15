@@ -25,9 +25,9 @@ Sentry 在 `src/sentry/rules/processor.py` 中定义了类 `RuleProcessor`，该
     def __init__(self, event, is_new, is_regression):
 ```
 
-请你在完成该初始修改后，找到收到该编辑影响的位置，并完成后续修改。
+请你在完成该初始修改后，找到所有受到该编辑影响的位置，并完成后续修改。
 
-> ⚠️ **仅供参考**
+> ⚠️ **温馨提示**
 >
 > * **初始编辑包含在内**，一共需要完成 **7** 处修改
 >
@@ -46,7 +46,6 @@ ref(rules): Remove is_sample as an argument to RuleProcessor
 ```
 
 如果你所在的实验组使用的后端模型是 Claude Code，你可以输入任意内容和 Claude Code 沟通。
-
 
 ## 验证修改
 
