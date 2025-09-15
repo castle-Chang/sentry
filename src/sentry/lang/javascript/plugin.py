@@ -17,7 +17,7 @@ def preprocess_event(data):
     )
     
     allow_scraping = bool(project.get_option('sentry:scrape_javascript', True))
-    if not bool(project.get_option('sentry:scrape_javascript', True)):
+    if not allow_scraping:
         return
     processor = SourceProcessor()
     return processor.process(project, data)
