@@ -5,9 +5,8 @@
 请通过以下命令配置环境，用于测试编辑结果：
 
 ```bash
-conda create --name env_warmup python=3.XX -y
-conda activate env_warmup
-pip install xxx
+conda create --name env_1 python=3.9 -y
+conda activate env_1
 ```
 
 ## 任务介绍
@@ -52,13 +51,16 @@ ref(rules): Remove is_sample as an argument to RuleProcessor
 请运行一下命令验证修改是否成功
 
 ```bash
-
+python -m test.run
 ```
 
 当修改正确时，你应该看到以下内容：
 
 ```bash
-
+Test 1 passed.
+Test 2 passed.
+Test 3 passed.
+Test 4 passed.
 ```
 
 恭喜你成功完成该任务，你可以告知实验负责人，停止录屏，整理需要提交的内容，并在**所有任务**完成后，打包提交。
