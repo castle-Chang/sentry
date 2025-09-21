@@ -83,51 +83,132 @@ def test_plugin():
         
         return mock_source_processor, mock_project
 
+    def test_if_condition_removed():
+        """测试 if not allow_scraping: return 条件是否被删除"""
+        function_code, filepath = extract_preprocess_event_function()
+        if not function_code:
+            return False
+
+        # 检查函数代码中是否还存在 if not allow_scraping: 的条件
+        if 'if not allow_scraping:' in function_code:
+            return False
+
+        # 检查函数代码中是否还存在孤立的 return 语句（在 if 条件删除后可能遗留）
+        lines = function_code.split('\n')
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            # 检查是否有孤立的 return 语句（不在其他控制结构中）
+            if stripped == 'return' and i > 0:
+                # 检查上一行是否包含 if 条件
+                prev_line = lines[i-1].strip()
+                if not prev_line.startswith('if') and not prev_line.startswith('elif') and not prev_line.startswith('else'):
+                    # 这可能是未删除的 return 语句
+                    return False
+
+        return True
+
     def test_allow_scraping_parameter():
         """测试 allow_scraping 参数传递"""
         function_code, filepath = extract_preprocess_event_function()
         if not function_code:
             return False
-        
+
         # 创建模拟环境
         mock_source_processor, mock_project = create_mock_environment()
-        
+
         # 准备执行环境
         namespace = {
             'Project': sys.modules['sentry.models'].Project,
             'SourceProcessor': mock_source_processor,
             '__builtins__': __builtins__
         }
-        
+
         try:
             # 执行函数定义
             exec(function_code, namespace)
             preprocess_event = namespace['preprocess_event']
-            
+
             # 测试数据
             test_data_js = {
                 'platform': 'javascript',
                 'project': 'test-project'
             }
-            
+
             # 调用函数
             result = preprocess_event(test_data_js)
-            
+
             # 检查 SourceProcessor 是否被调用且包含 allow_scraping 参数
             if mock_source_processor.called:
                 call_args = mock_source_processor.call_args
                 if call_args and 'allow_scraping' in call_args.kwargs:
                     return True
-            
+
             return False
-            
+
         except Exception as e:
             return False
 
-    if test_allow_scraping_parameter():
+    def test_no_early_return_when_scraping_disabled():
+        """测试当项目配置 allow_scraping=False 时函数不会提前返回"""
+        function_code, filepath = extract_preprocess_event_function()
+        if not function_code:
+            return False
+
+        # 创建模拟环境，设置项目配置为禁用 scraping
+        mock_source_processor, mock_project = create_mock_environment()
+        mock_project.get_option = Mock(return_value=False)  # 设置 scraping 为 False
+
+        # 准备执行环境
+        namespace = {
+            'Project': sys.modules['sentry.models'].Project,
+            'SourceProcessor': mock_source_processor,
+            '__builtins__': __builtins__
+        }
+
+        try:
+            # 执行函数定义
+            exec(function_code, namespace)
+            preprocess_event = namespace['preprocess_event']
+
+            # 测试数据
+            test_data_js = {
+                'platform': 'javascript',
+                'project': 'test-project'
+            }
+
+            # 调用函数
+            result = preprocess_event(test_data_js)
+
+            # 如果函数没有提前返回，SourceProcessor 应该被调用
+            # 即使 allow_scraping=False，函数也应该继续执行并创建 SourceProcessor
+            if mock_source_processor.called:
+                call_args = mock_source_processor.call_args
+                if call_args and 'allow_scraping' in call_args.kwargs:
+                    # 验证传递的 allow_scraping 值是 False（从项目配置获取）
+                    if call_args.kwargs['allow_scraping'] == False:
+                        return True
+
+            return False
+
+        except Exception as e:
+            return False
+
+    # 运行所有测试
+    if_condition_removed = test_if_condition_removed()
+    parameter_passed = test_allow_scraping_parameter()
+    no_early_return = test_no_early_return_when_scraping_disabled()
+
+    if if_condition_removed and parameter_passed and no_early_return:
         print("Test 4 passed.")
     else:
-        raise AssertionError("Failed passing allow_scraping to SourceProcessor")
+        error_details = []
+        if not if_condition_removed:
+            error_details.append("if condition not removed")
+        if not parameter_passed:
+            error_details.append("allow_scraping parameter not passed")
+        if not no_early_return:
+            error_details.append("early return still exists")
+        raise AssertionError(f"Failed: {', '.join(error_details)}")
 
 def test_fetch_url():
     """测试 fetch_url 函数的 allow_scraping 功能"""
