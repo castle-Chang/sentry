@@ -45,13 +45,14 @@ def test_1():
         import re
 
         # Extract the EventState class definition
-        class_pattern = r'class EventState\(object\):\s*\n(.*?)(?=\n\n|\nclass|\n[a-zA-Z]|\Z)'
+        class_pattern = r'class EventState\(object\):\s*\n(.*?)(?=\Z)'
         match = re.search(class_pattern, content, re.DOTALL)
 
         if not match:
             raise Exception("Test 1 failed: Could not find EventState class definition")
 
         class_content = match.group(1)
+        print(f"class content:\n {class_content}")
 
         # Check that is_sample is not assigned in the __init__ method (allow commented out)
         # Look for uncommented self.is_sample assignments
