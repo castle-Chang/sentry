@@ -52,7 +52,6 @@ def test_1():
             raise Exception("Test 1 failed: Could not find EventState class definition")
 
         class_content = match.group(1)
-        print(f"class content:\n {class_content}")
 
         # Check that is_sample is not assigned in the __init__ method (allow commented out)
         # Look for uncommented self.is_sample assignments
@@ -82,10 +81,12 @@ def test_2():
 
         # Test 2a: Check constructor signature - should only have event, is_new, is_regression
         if 'def __init__(self, event, is_new, is_regression, is_sample)' in content:
-            raise Exception("Test 2 failed: RuleProcessor constructor still has is_sample parameter")
+            print("Test 2 failed: RuleProcessor constructor still has is_sample parameter")
+            return
 
         if 'def __init__(self, event, is_new, is_regression):' not in content:
-            raise Exception("Test 2 failed: RuleProcessor constructor signature is incorrect")
+            print("Test 2 failed: RuleProcessor constructor signature is incorrect")
+            return
 
         # Test 2b: Check that self.is_sample assignment is removed
         import re
@@ -95,7 +96,8 @@ def test_2():
         match = re.search(class_pattern, content, re.DOTALL)
 
         if not match:
-            raise Exception("Test 2 failed: Could not find RuleProcessor class definition")
+            print("Test 2 failed: Could not find RuleProcessor class definition")
+            return
 
         class_content = match.group(1)
 
@@ -103,26 +105,30 @@ def test_2():
         import re
         # Look for uncommented assignment (not starting with #)
         if re.search(r'^\s*self\.is_sample\s*=\s*is_sample', class_content, re.MULTILINE):
-            raise Exception("RuleProcessor.__init__ still assigns self.is_sample")
+            print("Test 2 failed: RuleProcessor.__init__ still assigns self.is_sample")
+            return
 
         # Test 2c: Check that get_state() method doesn't pass is_sample to EventState (allow commented out)
         # Look for uncommented is_sample parameter (check if line doesn't start with #)
         is_sample_lines = re.findall(r'^.*is_sample\s*=\s*self\.is_sample.*$', class_content, re.MULTILINE)
         for line in is_sample_lines:
             if not line.strip().startswith('#'):
-                raise Exception("Test 2 failed: RuleProcessor.get_state() still passes is_sample to EventState")
+                print("Test 2 failed: RuleProcessor.get_state() still passes is_sample to EventState")
+                return
 
         # Test 2d: Verify required attributes are still assigned
         if 'self.is_new = is_new' not in class_content:
-            raise Exception("Test 2 failed: RuleProcessor.__init__ missing self.is_new assignment")
+            print("Test 2 failed: RuleProcessor.__init__ missing self.is_new assignment")
+            return
 
         if 'self.is_regression = is_regression' not in class_content:
-            raise Exception("Test 2 failed: RuleProcessor.__init__ missing self.is_regression assignment")
+            print("Test 2 failed: RuleProcessor.__init__ missing self.is_regression assignment")
+            return
 
         print("Test 2 passed.")
 
     except Exception as e:
-        print("Test 2 failed: " + str(e))
+        print("Test 2 failed for" + str(e))
 
 def test_3():
     try:
@@ -133,13 +139,13 @@ def test_3():
 
         # Check if RuleProcessor is called without is_sample parameter
         if 'RuleProcessor(event, is_new, is_regression, is_sample)' in content:
-            raise Exception("Test 3 failed for unexpected is_sample in RuleProcessor call")
+            print("Test 3 failed for unexpected argument is_sample in RuleProcessor call")
         elif 'RuleProcessor(event, is_new, is_regression)' in content:
             print("Test 3 passed.")
         else:
-            raise Exception("Test 3 failed for unexpected RuleProcessor call")
-    except Exception:
-        print("Test 3 failed for function inspection")
+            print("Test 3 failed for unexpected argument is_sample in RuleProcessor call")
+    except Exception as e:
+        print(f"Test 3 failed for {e}")
 
 def test_4():
     try:
@@ -148,12 +154,13 @@ def test_4():
         if os.path.exists(test_file_path):
             content = read_file_safe(test_file_path)
             if 'is_sample=False' in content:
-                raise Exception("Test 4 failed for unexpected is_sample parameter")
-            print("Test 4 passed.")
+                print("Test 4 failed for unexpected argument is_sample parameter")
+            else:
+                print("Test 4 passed.")
         else:
-            raise Exception("Test 4 failed for file existence")
-    except Exception:
-        print("Test 4 failed for file access")
+            print("Test 4 failed for file existence")
+    except Exception as e:
+        print(f"Test 4 failed for {e}")
 
 if __name__ == "__main__":
     test_1()
