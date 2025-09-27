@@ -208,7 +208,7 @@ def test_plugin():
             error_details.append("allow_scraping parameter not passed")
         if not no_early_return:
             error_details.append("early return still exists")
-        raise AssertionError(f"Failed: {', '.join(error_details)}")
+        print(f"Test 4 failed: {', '.join(error_details)} at where SourceProcessor is called")
 
 def test_fetch_url():
     """测试 fetch_url 函数的 allow_scraping 功能"""
@@ -320,11 +320,11 @@ def test_fetch_url():
                 return False
         except Exception as e:
             if str(e) == "fetch_url() got an unexpected keyword argument 'allow_scraping'":
-                print("fetch_url() got an unexpected keyword argument 'allow_scraping'")
+                print("Test 1 failed: when trying to pass argument 'allow_scraping' to fetch_url().")
                 return False
             # 抛出了其他类型的异常，功能可能未正确实现
             else:
-                print("You did not implement the usage of allow_scraping in fetch_url()")
+                print("Test 1 failed: you did not implement the usage of allow_scraping in fetch_url()")
                 return False
         
     except Exception as e:
@@ -463,10 +463,10 @@ def test_fetch_sourcemap():
                 
         except Exception as e:
             if str(e) == "fetch_sourcemap() got an unexpected keyword argument 'allow_scraping'":
-                print("fetch_sourcemap() got an unexpected keyword argument 'allow_scraping'")
+                print("Test 2 failed: when trying to pass argument 'allow_scraping' to fetch_sourcemap().")
                 return False
             else:
-                print(f"B: Failed passing allow_scraping to fetch_url: {e}")
+                print(f"Test 2 failed: when trying to pass argument 'allow_scraping' from fetch_sourcemap() to fetch_url().")
                 return False
         
     except Exception as e:
@@ -609,17 +609,17 @@ def test_SourceProcessor():
         # 测试1: 检查 __init__ 方法是否包含 allow_scraping 参数
         init_signature = inspect.signature(SourceProcessor.__init__)
         if 'allow_scraping' not in init_signature.parameters:
-            print("Failed: SourceProcessor.__init__ missing allow_scraping parameter")
+            print("Test 3 failed: SourceProcessor.__init__ missing allow_scraping parameter")
             return False
         
         # 测试2: 创建 SourceProcessor 实例并检查属性
         processor = SourceProcessor(allow_scraping=False)
         if not hasattr(processor, 'allow_scraping'):
-            print("Failed: SourceProcessor instance missing allow_scraping attribute")
+            print("Test 3 failed: SourceProcessor instance missing allow_scraping attribute")
             return False
         
         if processor.allow_scraping != False:
-            print("Failed: SourceProcessor.allow_scraping not set correctly")
+            print("Test 3 failed: SourceProcessor.allow_scraping not set correctly")
             return False
         
         # 测试3: 模拟 populate_source_cache 方法调用
@@ -652,10 +652,10 @@ def test_SourceProcessor():
                     print("✓ fetch_url called with allow_scraping=False")
                     fetch_url_ok = True
                 else:
-                    print("Failed: fetch_url not called with correct allow_scraping")
+                    print("Test 3 failed: fetch_url() not called with correct allow_scraping in SourceProcessor()")
                     return False
             else:
-                print("Failed: fetch_url not called")
+                print("Test 3 failed: fetch_url() not called in SourceProcessor()")
                 return False
             
             # 检查 fetch_sourcemap 是否也被调用且传递了 allow_scraping=False
@@ -667,13 +667,11 @@ def test_SourceProcessor():
                     print("✓ fetch_sourcemap called with allow_scraping=False")
                     fetch_sourcemap_ok = True
                 else:
-                    print("Failed: fetch_sourcemap not called with correct allow_scraping")
-                    print(f"fetch_sourcemap called with allow_scraping={sourcemap_args.get('allow_scraping')}")
+                    print("Test 3 failed: fetch_sourcemap() not called with correct allow_scraping in SourceProcessor()")
+                    print(f"Test 3 failed: fetch_sourcemap() not called with correct allow_scraping in SourceProcessor() - allow_scraping={sourcemap_args.get('allow_scraping')}")
                     return False
             else:
-                print("Failed: fetch_sourcemap not called - sourcemap fetching didn't occur")
-                print("DEBUG: Checking if fetch_sourcemap function has any call tracking...")
-                print(f"DEBUG: fetch_sourcemap function: {namespace['fetch_sourcemap']}")
+                print("Test 3 failed: fetch_sourcemap() not called in SourceProcessor()")
                 return False
             
             if fetch_url_ok and fetch_sourcemap_ok:
