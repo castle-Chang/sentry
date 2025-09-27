@@ -154,11 +154,11 @@ def test_4():
         if os.path.exists(test_file_path):
             content = read_file_safe(test_file_path)
             if 'is_sample=False' in content:
-                print("Test 4 failed for unexpected argument is_sample parameter")
+                print("Test 4 failed for unexpected argument is_sample in RuleProcessor call")
             else:
-                print("Test 4 passed.")
+                print("Test 4 passed for unexpected argument is_sample in RuleProcessor call")
         else:
-            print("Test 4 failed for file existence")
+            print("Test 4 failed for file tests/sentry/rules/test_processor.py not found")
     except Exception as e:
         print(f"Test 4 failed for {e}")
 
