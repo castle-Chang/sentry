@@ -111,10 +111,12 @@ def count() -> tuple:
             if type(window) is dict:
                 print(f"At file: {file_name}")
                 for loc in window["before"]:
-                    print(bg_red(f"- {loc}"), end="")
+                    loc = loc.strip("\n")
+                    print(bg_red(f"- {loc}"), end="\n")
 
                 for loc in window["after"]:
-                    print(bg_green(f"+ {loc}"), end="")
+                    loc = loc.strip("\n")
+                    print(bg_green(f"+ {loc}"), end="\n")
                 print("\n"+"="*30)
                 cnt += 1
 
