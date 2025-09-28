@@ -292,7 +292,7 @@ def test_fetch_url():
     
     function_code = find_fetch_url_function()
     if not function_code:
-        print("Failed to find fetch_url function")
+        print("Test 1: Failed to find fetch_url function")
         return False
     
     namespace = create_mock_environment()
@@ -306,7 +306,7 @@ def test_fetch_url():
         try:
             fetch_url('http://example.com', allow_scraping=False)
             # 如果没有抛出异常，说明功能未实现
-            print("A: Failed passing allow_scraping to fetch_url")
+            print("Test 1 failed: when passing allow_scraping to fetch_url")
             return False
         except namespace['CannotFetchSource'] as e:
             # 检查异常的错误字典是否包含正确的类型和URL
@@ -316,7 +316,7 @@ def test_fetch_url():
                 print("Test 1 passed.")
                 return True
             else:
-                print(f"Testing fetch_url() failed: {e}")
+                print(f"Test 1 failed: Testing fetch_url() failed: {e}")
                 return False
         except Exception as e:
             if str(e) == "fetch_url() got an unexpected keyword argument 'allow_scraping'":
@@ -328,7 +328,7 @@ def test_fetch_url():
                 return False
         
     except Exception as e:
-        print(f"Testing fetch_url() failed: {e}")
+        print(f"Test 1 failed: when testing fetch_url(): {e}")
         return False
 
 
@@ -432,7 +432,7 @@ def test_fetch_sourcemap():
     
     function_code = find_fetch_sourcemap_function()
     if not function_code:
-        print("Failed to find fetch_sourcemap function")
+        print("Test 2 failed: when trying to find fetch_sourcemap function")
         return False
     
     namespace = create_mock_environment()
@@ -458,7 +458,7 @@ def test_fetch_sourcemap():
                         print("Test 2 passed.")
                         return True
             
-            print("Failed passing allow_scraping from fetch_sourcemap to fetch_url")
+            print("Test 2 failed: when passing allow_scraping from fetch_sourcemap to fetch_url")
             return False
                 
         except Exception as e:
@@ -470,7 +470,7 @@ def test_fetch_sourcemap():
                 return False
         
     except Exception as e:
-        print(f"Testing fetch_sourcemap() failed: {e}")
+        print(f"Test 2 failed: when trying to test fetch_sourcemap(): {e}")
         return False
 
 def test_SourceProcessor():
@@ -596,7 +596,7 @@ def test_SourceProcessor():
     
     class_code = find_source_processor_class()
     if not class_code:
-        print("Failed to find SourceProcessor class")
+        print("Test 3 failed: when trying to find SourceProcessor class")
         return False
     
     namespace = create_mock_environment()
@@ -649,7 +649,6 @@ def test_SourceProcessor():
             if hasattr(namespace['fetch_url'], 'last_call_args'):
                 args = namespace['fetch_url'].last_call_args
                 if args.get('allow_scraping') == False:
-                    print("✓ fetch_url called with allow_scraping=False")
                     fetch_url_ok = True
                 else:
                     print("Test 3 failed: fetch_url() not called with correct allow_scraping in SourceProcessor()")
@@ -662,9 +661,7 @@ def test_SourceProcessor():
             fetch_sourcemap_ok = False
             if hasattr(namespace['fetch_sourcemap'], 'last_call_args'):
                 sourcemap_args = namespace['fetch_sourcemap'].last_call_args
-                print(f"DEBUG: fetch_sourcemap called with args: {sourcemap_args}")
                 if sourcemap_args.get('allow_scraping') == False:
-                    print("✓ fetch_sourcemap called with allow_scraping=False")
                     fetch_sourcemap_ok = True
                 else:
                     print("Test 3 failed: fetch_sourcemap() not called with correct allow_scraping in SourceProcessor()")
@@ -689,33 +686,28 @@ def test_SourceProcessor():
             if hasattr(namespace['fetch_url'], 'last_call_args'):
                 args = namespace['fetch_url'].last_call_args
                 if args.get('allow_scraping') == False:
-                    # print("✓ fetch_url called with allow_scraping=False")
                     fetch_url_ok = True
             
             if hasattr(namespace['fetch_sourcemap'], 'last_call_args'):
                 sourcemap_args = namespace['fetch_sourcemap'].last_call_args
                 if sourcemap_args.get('allow_scraping') == False:
-                    # print("✓ fetch_sourcemap called with allow_scraping=False")
                     fetch_sourcemap_ok = True
             
             # 详细报告
             if hasattr(namespace['fetch_url'], 'last_call_args'):
                 url_args = namespace['fetch_url'].last_call_args
-                # print(f"✓ fetch_url called with allow_scraping={url_args.get('allow_scraping')}")
-
             if hasattr(namespace['fetch_sourcemap'], 'last_call_args'):
                 sourcemap_args = namespace['fetch_sourcemap'].last_call_args
-                # print(f"✓ fetch_sourcemap called with allow_scraping={sourcemap_args.get('allow_scraping')}")
 
             if fetch_url_ok and fetch_sourcemap_ok:
                 print("Test 3 passed.")
                 return True
             else:
-                print("Test failed: allow_scraping propagation is incorrect")
+                print("Test 3 failed: allow_scraping propagation is incorrect inside SourceProcessor()")
                 return False
         
     except Exception:
-        print("Failed: SourceProcessor class definition or execution failed")
+        print("Test 3 failed: SourceProcessor class definition or execution failed")
         return False
 
 
